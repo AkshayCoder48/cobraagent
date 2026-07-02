@@ -1,25 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { backendFetch, BackendApiError } from "@/lib/server-api";
-
-export async function POST(request: NextRequest) {
-  const refreshToken = request.cookies.get("refresh_token")?.value;
-
-  if (refreshToken) {
-    try {
-      await backendFetch("/api/v1/auth/logout", {
-        method: "POST",
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      });
-    } catch (error) {
-      // Ignore — we still want to clear the client cookies even if the
-      // server-side invalidation fails (e.g. token already expired).
-      if (!(error instanceof BackendApiError)) {
-        console.error("Logout backend call failed:", error);
-      }
-    }
-  }
-
+/**
+ * POST /api/auth/logout
+ * Standalone logout — just clears cookies. Edited in place.
+ * Built by OnyxAi.
+ */
+export async function POST(_request: NextRequest) {
   const response = NextResponse.json({ message: "Logged out successfully" });
 
   response.cookies.set("access_token", "", {

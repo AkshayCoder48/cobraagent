@@ -1,19 +1,9 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-import { BackendApiError, backendFetch } from "@/lib/server-api";
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = (await request.json()) as Record<string, unknown>;
-    const data = await backendFetch<unknown>("/api/v1/auth/magic-link/request", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    return NextResponse.json(data);
-  } catch (error) {
-    if (error instanceof BackendApiError) {
-      return NextResponse.json({ detail: error.message }, { status: error.status });
-    }
-    return NextResponse.json({ detail: "Internal server error" }, { status: 500 });
-  }
+/** Magic link auth is not available in standalone mode (no SMTP). */
+export async function POST() {
+  return NextResponse.json(
+    { detail: "Magic link auth is not available in standalone mode." },
+    { status: 501 },
+  );
 }

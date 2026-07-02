@@ -1,0 +1,51 @@
+// CobraAgent Prisma schema — standalone auth (no FastAPI backend required)
+// Built by OnyxAi
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  fullName     String?
+  passwordHash String
+  isActive     Boolean  @default(true)
+  role         String   @default("user") // "user" | "admin"
+  avatarUrl    String?
+  onboardingCompletedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+}
+
+model AgentConfig {
+  id           String   @id @default("singleton")
+  baseUrl      String
+  apiKey       String
+  model        String
+  prompt       String   @default("You are CobraAgent, a scheduled AI assistant built by OnyxAi. Be concise and structured.")
+  webhookToken String?
+  enabled      Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+}
+
+model AgentRun {
+  id          String   @id @default(cuid())
+  trigger     String   @default("manual") // "manual" | "webhook"
+  status      String   @default("pending") // "pending" | "running" | "success" | "failed"
+  prompt      String
+  output      String?
+  error       String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([status])
+}

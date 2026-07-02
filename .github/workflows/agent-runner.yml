@@ -1,0 +1,71 @@
+name: Run AI Agent Task
+
+# CobraAgent — The Ultimate "Zero Limits" Hack: GitHub Actions as a Free Runner
+# Built by OnyxAi
+#
+# If your AI agent is meant to run scheduled multi-step tasks (scraping the web,
+# analyzing data, posting updates) rather than waiting around to answer web
+# requests 24/7, don't host a web server at all. Use GitHub Actions.
+#
+# Free tier:
+#   - Private repos: 2,000 free automation minutes/month per account
+#   - Public repos: 100% UNLIMITED free minutes
+#
+# Triggers:
+#   1. Cron schedule (every hour by default)
+#   2. repository_dispatch webhook (instant trigger via free GitHub webhook)
+#   3. workflow_dispatch (manual run from the Actions tab)
+#
+# Setup:
+#   1. Deploy CobraAgent to Vercel
+#   2. Go to the /agent page, configure provider + API key + webhook token
+#   3. Click "Download agent-config.json"
+#   4. Commit agent-config.json to the repo root
+#   5. This workflow will trigger the deployed app via webhook on schedule
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Runs automatically every single hour
+  repository_dispatch:
+    types: [trigger-agent] # Can be triggered instantly via a free webhook
+  workflow_dispatch: {} # Manual run from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check agent-config.json exists
+        run: |
+          if [ ! -f agent-config.json ]; then
+            echo "::error::agent-config.json not found. Download it from the CobraAgent /agent page and commit it."
+            exit 1
+          fi
+          echo "Found agent-config.json"
+
+      - name: Run Agent Core
+        run: python agent.py
+
+      - name: Upload agent output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobra-agent-output-${{ github.run_id }}
+          path: agent-output.json
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,0 +1,2 @@
+# CobraAgent Python runner dependencies — Built by OnyxAi
+openai>=1.40.0
