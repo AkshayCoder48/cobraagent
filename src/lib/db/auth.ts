@@ -97,5 +97,5 @@ export async function resolveUserFromRequest(req: {
   return { user: toApiUser(u), accessToken: newAccess };
 }
 
-export { ACCESS_MAXAGE, REFRESH_MAXAGE, verifyToken };
+export { ACCESS_MAXAGE, REFRESH_MAXAGE, verifyToken, signAccessToken, signRefreshToken };
 export type { CobraJwtPayload };
